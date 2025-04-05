@@ -325,6 +325,14 @@
     left: 50%;
   }
 
+  .left-\[-30px\] {
+    left: -30px;
+  }
+
+  .left-\[-50px\] {
+    left: -50px;
+  }
+
   .z-20 {
     z-index: 20;
   }
@@ -405,6 +413,10 @@
     }
   }
 
+  .mx-6 {
+    margin-inline: calc(var(--spacing) * 6);
+  }
+
   .mx-auto {
     margin-inline: auto;
   }
@@ -465,6 +477,10 @@
     display: table;
   }
 
+  .h-1 {
+    height: calc(var(--spacing) * 1);
+  }
+
   .h-6 {
     height: calc(var(--spacing) * 6);
   }
@@ -499,6 +515,10 @@
 
   .w-24 {
     width: calc(var(--spacing) * 24);
+  }
+
+  .w-\[50px\] {
+    width: 50px;
   }
 
   .w-\[420px\] {
@@ -573,6 +593,10 @@
     align-items: center;
   }
 
+  .items-start {
+    align-items: flex-start;
+  }
+
   .justify-between {
     justify-content: space-between;
   }
@@ -609,6 +633,10 @@
     gap: 32px;
   }
 
+  .gap-\[50px\] {
+    gap: 50px;
+  }
+
   :where(.space-x-4 > :not(:last-child)) {
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 4) * var(--tw-space-x-reverse));
@@ -619,6 +647,10 @@
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 6) * var(--tw-space-x-reverse));
     margin-inline-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-x-reverse)));
+  }
+
+  .self-center {
+    align-self: center;
   }
 
   .overflow-auto {

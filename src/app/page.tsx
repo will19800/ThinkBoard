@@ -1,15 +1,81 @@
-import { useState } from 'react';
+"use client";
+
+import { SetStateAction, useState } from 'react';
 import { ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
 
 export default function Home() {
-  const [question, setQuestion] = useState('');
+  const [userInput, setUserInput] = useState('');
   const [answer, setAnswer] = useState('');
   const [zoom, setZoom] = useState(1);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Start of every Chat GPT message
+  const context : String = "You are a supportive teacher helping a middle school student learn STEM. If the student asks a general or conceptual question, offer 3 labeled branches (e.g., theory, real-life, what-if), You are a teacher giving responses to a middle schooler asking tutoring questions to better understand difficult STEM subjects, give three branches of thought to each query and ask which branch the student would like to continue. If the student asks a specific or problem-solving question, give one clear path with step-by-step guidance. Use simple language, real-world examples, and check understanding. Encourage curiosity, praise effort, and make learning fun."
+
+  const getConversationHistoryString = (): string => {
+    return conversationHistory.join(" "); // Joins the conversation history with a space between each message
+  };
+
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]); // List to track conversation
+
+    // Handle user input change
+    const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
+      setUserInput(e.target.value);
+    };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate AI response
-    setAnswer('This is where the AI response would appear. The actual implementation would connect to an AI service.');
+    if (userInput.trim() === '') return;
+
+    // Append the user's input to the conversation history as a string
+    const newConversation = [...conversationHistory, userInput];
+
+    setConversationHistory(newConversation);
+
+    console.log(conversationHistory)
+
+    // Concatenate conversation history into one string
+    const conversationHistoryString = getConversationHistoryString();
+    const question = userInput
+
+    const prompt: string = context + 
+    "\n\n" +  // Adds a line break between context and the next part
+    "This is all the previous context from your lesson with this student" + 
+    "\n\n" +  // Adds a line break before conversation history
+    conversationHistoryString + 
+    "\n\n" +  // Adds a line break before user input
+    "This is the question the student is asking now: "  + question
+    question;
+
+    console.log(prompt)
+
+    // Clear the input box after submission
+    setUserInput('');
+
+    try {
+      const response = await fetch('http://localhost:3001/api/gpt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          customMessages: {
+            tone: 'friendly',
+            formality: 'formal',
+            knowledgeLevel: 'middle school',
+            length: 'short'
+          },
+        }),
+      });
+
+      const data = await response.json();
+      setAnswer(data.reply); 
+      console.log(answer)
+    } catch (error) {
+      console.error('Error fetching response:', error);
+      setAnswer('Something went wrong. Please try again later.');
+    }
+
   };
 
   const handleZoom = (direction: 'in' | 'out') => {
@@ -97,8 +163,8 @@ export default function Home() {
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
+                value={userInput}
+                onChange={handleInputChange}
                 placeholder="Ask a Question"
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 placeholder-gray-400"
               />

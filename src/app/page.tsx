@@ -36,10 +36,10 @@ function Whiteboard({
 }: WhiteboardProps) {
   const [userInput, setUserInput] = useState("");
   const [conversationHistory, setConversationHistory] = useState<string[]>([]);
-
+  
   const context =
     "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. If the student asks a general, conceptual, or exploratory question (like “What is electricity?”), respond with three labeled branches (e.g., Theory, Real-life Example, What-if Scenario) with a brief summary to spark curiosity, and ask “Which branch would you like to explore?” without going into detail until the student chooses. Make sure to take into account the context. If the student asks a specific or problem-solving question (like “How do I solve this equation?”), provide one clear, step-by-step explanation using simple language, real-world examples, checks for understanding, and positive encouragement to build confidence. Don’t ask “Which branch would you like to explore?,” instead ask a guiding question related to your response that provokes insight. Throughout all interactions, keep a friendly, supportive tone, use short headers when offering branches, treat each selected branch as its own context, and never mix general and specific response styles in the same reply. Make sure to take into account the context.";
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
   };
@@ -82,25 +82,31 @@ function Whiteboard({
     }
   };
 
+  // Inactive board: show finalized Q&A with a custom image in bottom right.
   if (finalQuestion !== undefined) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
+      <div className="bg-white relative rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
         <h2 className="text-2xl font-bold mb-6 text-black">{finalQuestion}</h2>
         <div>
           <span className="text-gray-600">
             {answer || "(info about the topic that the user requested)"}
           </span>
         </div>
+        {/* Custom image in bottom right. Change the src to your custom image URL */}
+        <img
+          src="https://via.placeholder.com/40"
+          alt="Custom"
+          className="absolute bottom-2 right-2 w-10 h-10"
+        />
       </div>
     );
   }
 
+  // Active board: show input form.
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        {showBranch
-          ? "Do you have further questions?"
-          : "What do you want to learn today?"}
+        {showBranch ? "Do you have further questions?" : "What do you want to learn today?"}
       </h2>
       <form onSubmit={handleSubmitWithGPT}>
         <input
@@ -129,17 +135,13 @@ export default function Home() {
   const nextId = useRef(2);
   const [autoZoomEnabled, setAutoZoomEnabled] = useState(true);
 
-  // Handle Ask (rightmost column).
+  // Handle Ask (rightmost column)
   const handleAsk = (finalQuestion: string, answer: string) => {
     setAutoZoomEnabled(true);
     setColumns((prev) => {
       const lastColIndex = prev.length - 1;
       const lastCol = prev[lastColIndex];
-      const finalizedBoard: Board = {
-        id: nextId.current++,
-        finalQuestion,
-        answer,
-      };
+      const finalizedBoard: Board = { id: nextId.current++, finalQuestion, answer };
       const newActiveBoard: Board = { id: nextId.current++ };
       const newLastCol = [
         ...lastCol.slice(0, lastCol.length - 1),
@@ -151,27 +153,15 @@ export default function Home() {
     });
   };
 
-  // Handle Branch (non-rightmost columns).
-  const handleBranch = (
-    finalQuestion: string,
-    answer: string,
-    colIndex: number
-  ) => {
+  // Handle Branch (non-rightmost columns)
+  const handleBranch = (finalQuestion: string, answer: string, colIndex: number) => {
     setAutoZoomEnabled(false);
     setColumns((prev) => {
       const newColumns = [...prev];
       const col = newColumns[colIndex];
-      const finalizedBoard: Board = {
-        id: nextId.current++,
-        finalQuestion,
-        answer,
-      };
+      const finalizedBoard: Board = { id: nextId.current++, finalQuestion, answer };
       const newActiveBoard: Board = { id: nextId.current++ };
-      newColumns[colIndex] = [
-        ...col.slice(0, col.length - 1),
-        finalizedBoard,
-        newActiveBoard,
-      ];
+      newColumns[colIndex] = [...col.slice(0, col.length - 1), finalizedBoard, newActiveBoard];
       return newColumns;
     });
   };
@@ -183,23 +173,20 @@ export default function Home() {
     });
   };
 
-  // Auto-fit zoom: only adjust zoom if the top row chain is out of view.
+  // Auto-fit zoom: adjust only if the top row chain is out of view.
   useEffect(() => {
     if (autoZoomEnabled) {
       const boardWidth = 420;
       const boardHeight = 500;
       const gap = 50;
-      // Top row chain: one board per column.
       const numColumns = columns.length;
       const topRowWidth = numColumns * boardWidth + (numColumns - 1) * gap;
       const availableWidth = window.innerWidth - 32;
       const availableHeight = window.innerHeight - 32;
       let newZoom = zoom;
-      // Adjust if the top row chain width is out of view.
       if (topRowWidth * zoom > availableWidth) {
         newZoom = availableWidth / topRowWidth;
       }
-      // Also ensure the top row height fits.
       if (boardHeight * newZoom > availableHeight) {
         newZoom = availableHeight / boardHeight;
       }

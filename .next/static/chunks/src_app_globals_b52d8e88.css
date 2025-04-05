@@ -4,7 +4,6 @@
 
 @layer theme {
   :root, :host {
-    --color-blue-400: oklch(70.7% .165 254.624);
     --color-blue-500: oklch(62.3% .214 259.815);
     --color-blue-600: oklch(54.6% .245 262.881);
     --color-indigo-600: oklch(51.1% .262 276.966);
@@ -237,10 +236,6 @@
     inset: calc(var(--spacing) * 0);
   }
 
-  .top-1\/2 {
-    top: 50%;
-  }
-
   .right-8 {
     right: calc(var(--spacing) * 8);
   }
@@ -249,100 +244,8 @@
     bottom: calc(var(--spacing) * 8);
   }
 
-  .left-1\/2 {
-    left: 50%;
-  }
-
-  .left-\[-30px\] {
-    left: -30px;
-  }
-
-  .left-\[-50px\] {
-    left: -50px;
-  }
-
   .z-20 {
     z-index: 20;
-  }
-
-  .row-start-2 {
-    grid-row-start: 2;
-  }
-
-  .row-start-3 {
-    grid-row-start: 3;
-  }
-
-  .\!container {
-    width: 100% !important;
-  }
-
-  @media (width >= 40rem) {
-    .\!container {
-      max-width: 40rem !important;
-    }
-  }
-
-  @media (width >= 48rem) {
-    .\!container {
-      max-width: 48rem !important;
-    }
-  }
-
-  @media (width >= 64rem) {
-    .\!container {
-      max-width: 64rem !important;
-    }
-  }
-
-  @media (width >= 80rem) {
-    .\!container {
-      max-width: 80rem !important;
-    }
-  }
-
-  @media (width >= 96rem) {
-    .\!container {
-      max-width: 96rem !important;
-    }
-  }
-
-  .container {
-    width: 100%;
-  }
-
-  @media (width >= 40rem) {
-    .container {
-      max-width: 40rem;
-    }
-  }
-
-  @media (width >= 48rem) {
-    .container {
-      max-width: 48rem;
-    }
-  }
-
-  @media (width >= 64rem) {
-    .container {
-      max-width: 64rem;
-    }
-  }
-
-  @media (width >= 80rem) {
-    .container {
-      max-width: 80rem;
-    }
-  }
-
-  @media (width >= 96rem) {
-    .container {
-      max-width: 96rem;
-    }
-  }
-
-  .mx-6 {
-    margin-inline: calc(var(--spacing) * 6);
   }
 
   .mx-auto {
@@ -373,32 +276,8 @@
     display: flex;
   }
 
-  .grid {
-    display: grid;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .inline {
-    display: inline;
-  }
-
-  .inline-block {
-    display: inline-block;
-  }
-
-  .table {
-    display: table;
-  }
-
   .h-6 {
     height: calc(var(--spacing) * 6);
-  }
-
-  .h-\[2px\] {
-    height: 2px;
   }
 
   .min-h-\[280px\] {
@@ -421,14 +300,6 @@
     width: calc(var(--spacing) * 6);
   }
 
-  .w-24 {
-    width: calc(var(--spacing) * 24);
-  }
-
-  .w-\[50px\] {
-    width: 50px;
-  }
-
   .w-\[420px\] {
     width: 420px;
   }
@@ -439,16 +310,6 @@
 
   .max-w-7xl {
     max-width: var(--container-7xl);
-  }
-
-  .-translate-x-1\/2 {
-    --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
-  }
-
-  .-translate-y-1\/2 {
-    --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
-    translate: var(--tw-translate-x) var(--tw-translate-y);
   }
 
   .transform {
@@ -463,32 +324,20 @@
     align-items: center;
   }
 
-  .items-start {
-    align-items: flex-start;
-  }
-
   .justify-between {
     justify-content: space-between;
-  }
-
-  .justify-center {
-    justify-content: center;
   }
 
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
 
-  .gap-24 {
-    gap: calc(var(--spacing) * 24);
+  .gap-4 {
+    gap: calc(var(--spacing) * 4);
   }
 
-  .gap-\[24px\] {
-    gap: 24px;
-  }
-
-  .gap-\[32px\] {
-    gap: 32px;
+  .gap-\[50px\] {
+    gap: 50px;
   }
 
   :where(.space-x-4 > :not(:last-child)) {
@@ -501,10 +350,6 @@
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 6) * var(--tw-space-x-reverse));
     margin-inline-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-x-reverse)));
-  }
-
-  .self-center {
-    align-self: center;
   }
 
   .overflow-auto {
@@ -537,20 +382,12 @@
     border-color: var(--color-gray-200);
   }
 
-  .bg-blue-400 {
-    background-color: var(--color-blue-400);
-  }
-
   .bg-gray-50 {
     background-color: var(--color-gray-50);
   }
 
   .bg-gray-100 {
     background-color: var(--color-gray-100);
-  }
-
-  .bg-green-500 {
-    background-color: var(--color-green-500);
   }
 
   .bg-white {
@@ -794,24 +631,6 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-@property --tw-translate-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-translate-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
-@property --tw-translate-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false;
@@ -1002,9 +821,6 @@ body {
 @layer properties {
   @supports (((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
     *, :before, :after, ::backdrop {
-      --tw-translate-x: 0;
-      --tw-translate-y: 0;
-      --tw-translate-z: 0;
       --tw-rotate-x: rotateX(0);
       --tw-rotate-y: rotateY(0);
       --tw-rotate-z: rotateZ(0);

@@ -5,21 +5,20 @@ import { ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
 
 interface WhiteboardProps {
   id: number;
-  onAsk: (question: string, answer: string) => void;
-  initialQuestion?: string;
-  initialAnswer?: string;
+  onAsk: () => void;
+  
 }
 
-function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardProps) {
+function Whiteboard({ id, onAsk }: WhiteboardProps) {
   const [userInput, setUserInput] = useState('');
-  const [answer, setAnswer] = useState(initialAnswer || '');
+  const [answer, setAnswer] = useState('');
   const [conversationHistories, setConversationHistories] = useState<string[][]>([[]]);
-  
+
   const context: string =
   "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations...";
 
   const getConversationHistoryString = (history: string[]): string => {
-    return history.join(" ");
+  return history.join(" ");
   };
 
   const handleInputChange = (e: { target: { value: React.SetStateAction<string>; }; }) => {
@@ -27,6 +26,8 @@ function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardPro
   };
 
   const handleSubmitWithGPT = async (e: React.FormEvent) => {
+    console.log("made it")
+
     e.preventDefault();
     if (userInput.trim() === '') return;
   
@@ -47,8 +48,7 @@ function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardPro
       conversationHistoryString +
       "\n\nThis is the question the student is asking now: " +
       userInput;
-    
-    const currentQuestion = userInput;
+  
     setUserInput('');
   
     try {
@@ -61,15 +61,13 @@ function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardPro
       });
   
       const data = await response.json();
-      const aiAnswer = data.reply;
-      
-      // Pass the question and answer to the parent component to create a new whiteboard
-      onAsk(currentQuestion, aiAnswer);
-      
+      setAnswer(data.reply);
     } catch (error) {
       console.error('Error fetching response:', error);
-      onAsk(currentQuestion, 'Something went wrong. Please try again later.');
+      setAnswer('Something went wrong. Please try again later.');
     }
+
+    onAsk();
   };
 
   return (
@@ -77,7 +75,7 @@ function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardPro
       {/* Question Card */}
       <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">
-          {initialQuestion || "What do you want to learn today?"}
+          What do you want to learn today?
         </h2>
         <form onSubmit={handleSubmitWithGPT}>
           <input
@@ -106,30 +104,15 @@ function Whiteboard({ id, onAsk, initialQuestion, initialAnswer }: WhiteboardPro
   );
 }
 
-// Define a proper interface for the board items
-interface BoardItem {
-  id: number;
-  question?: string;
-  answer?: string;
-}
-
 export default function Home() {
   const [zoom, setZoom] = useState(1);
-  // Start with one whiteboard with no initial question or answer
-  const [boards, setBoards] = useState<BoardItem[]>([{ 
-    id: 1, 
-    question: undefined, 
-    answer: undefined 
-  }]);
+  // Start with one whiteboard
+  const [boards, setBoards] = useState([{ id: 1 }]);
 
-  // Add a new whiteboard with the provided question and answer
-  const addBoard = (question: string, answer: string) => {
+  // Adds a new whiteboard to the array.
+  const addBoard = () => {
     const newId = boards.length ? boards[boards.length - 1].id + 1 : 1;
-    setBoards((prev) => [...prev, { 
-      id: newId, 
-      question: question, 
-      answer: answer 
-    }]);
+    setBoards((prev) => [...prev, { id: newId }]);
   };
 
   const handleZoom = (direction: 'in' | 'out') => {
@@ -138,6 +121,9 @@ export default function Home() {
       return Math.min(Math.max(newZoom, 0.5), 2); // Limit zoom between 0.5x and 2x
     });
   };
+
+  // Define the gap in pixels between boards
+  // const gap = 50;
 
   return (
     <div className="min-h-screen bg-gray-100 relative">
@@ -222,12 +208,7 @@ export default function Home() {
                   }}
                 />
               )}
-              <Whiteboard 
-                id={board.id} 
-                onAsk={addBoard} 
-                initialQuestion={board.question} 
-                initialAnswer={board.answer}
-              />
+              <Whiteboard id={board.id} onAsk={addBoard} />
             </div>
           ))}
         </main>

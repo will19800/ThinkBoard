@@ -1,103 +1,124 @@
-import Image from "next/image";
+import { useState } from 'react';
+import { ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [zoom, setZoom] = useState(1);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate AI response
+    setAnswer('This is where the AI response would appear. The actual implementation would connect to an AI service.');
+  };
+
+  const handleZoom = (direction: 'in' | 'out') => {
+    setZoom(prev => {
+      const newZoom = direction === 'in' ? prev + 0.1 : prev - 0.1;
+      return Math.min(Math.max(newZoom, 0.5), 2); // Limit zoom between 0.5x and 2x
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 relative">
+      {/* Grid Background Pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThlYyIgb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')]" />
+
+      {/* Header - Fixed */}
+      <header className="bg-white border-b border-gray-200 shadow-sm relative z-20">
+        <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center">
+              <div className="bg-gradient-to-br from-indigo-600 to-blue-500 rounded-xl p-2.5 flex items-center relative group">
+                <Lightbulb className="w-6 h-6 text-white absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <Lightbulb className="w-6 h-6 text-white group-hover:opacity-0 transition-opacity duration-300" />
+              </div>
+              <div className="ml-3">
+                <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-blue-600 to-blue-500 bg-clip-text text-transparent">
+                  ThinkBoard
+                </span>
+                <div className="text-xs text-gray-500 -mt-1">AI-Powered Learning</div>
+              </div>
+            </div>
+            <button className="text-gray-600 hover:text-blue-500 transition-colors">
+              Load board
+            </button>
+            <button className="text-gray-600 hover:text-blue-500 transition-colors">
+              Save board
+            </button>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button className="text-gray-600 hover:text-blue-500 transition-colors">
+              Log in
+            </button>
+            <button className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white px-6 py-2 rounded-lg hover:from-indigo-700 hover:to-blue-600 transition-colors">
+              Sign up
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </header>
+
+      {/* Zoom Controls */}
+      <div className="fixed bottom-8 right-8 flex flex-col gap-2 z-20">
+        <button
+          onClick={() => handleZoom('in')}
+          className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          aria-label="Zoom in"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <ZoomIn className="w-6 h-6 text-gray-600" />
+        </button>
+        <button
+          onClick={() => handleZoom('out')}
+          className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          aria-label="Zoom out"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <ZoomOut className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Main Content - Zoomable */}
+      <div className="overflow-auto min-h-[calc(100vh-4rem)]">
+        <main
+          className="max-w-7xl mx-auto p-8 flex justify-center items-center gap-24 mt-12 relative min-h-[calc(100vh-8rem)]"
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'center top',
+            transition: 'transform 0.2s ease-out'
+          }}
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          {/* Connection Line */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-[2px] bg-blue-400" />
+
+          {/* Question Card */}
+          <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100">
+            <h2 className="text-2xl font-bold mb-6 text-gray-800">
+              What do you want to learn today?
+            </h2>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="Ask a Question"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 placeholder-gray-400"
+              />
+              <button
+                type="submit"
+                className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-3 rounded-lg hover:from-indigo-700 hover:to-blue-600 transition-colors font-medium"
+              >
+                Ask
+              </button>
+            </form>
+          </div>
+
+          {/* Answer Card */}
+          <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
+            <p className="text-gray-600">
+              {answer || '(info about the topic that the user requested)'}
+            </p>
+          </div>
+        </main>
+      </div>
     </div>
   );
-}
+};

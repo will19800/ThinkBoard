@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
 
 interface WhiteboardProps {
@@ -16,7 +16,7 @@ function Whiteboard({ id, onAsk }: WhiteboardProps) {
     e.preventDefault();
     // Simulate a response with placeholder text
     setAnswer(`Placeholder answer for board ${id}`);
-    // Create a new whiteboard
+    // Create a new whiteboard (only the first board shows the Ask button)
     onAsk();
   };
 
@@ -59,7 +59,7 @@ export default function Home() {
   // Start with one whiteboard
   const [boards, setBoards] = useState([{ id: 1 }]);
 
-  // Adds a new whiteboard to the array.
+  // Function to add a new whiteboard
   const addBoard = () => {
     const newId = boards.length ? boards[boards.length - 1].id + 1 : 1;
     setBoards((prev) => [...prev, { id: newId }]);
@@ -68,12 +68,24 @@ export default function Home() {
   const handleZoom = (direction: 'in' | 'out') => {
     setZoom((prev) => {
       const newZoom = direction === 'in' ? prev + 0.1 : prev - 0.1;
-      return Math.min(Math.max(newZoom, 0.5), 2); // Limit zoom between 0.5x and 2x
+      return Math.min(Math.max(newZoom, 0.2), 2); // Allow manual zoom between 0.2x and 2x
     });
   };
 
-  // Define the gap in pixels between boards
-  const gap = 50;
+  // Auto-fit effect: recalculate zoom to ensure the entire chain fits
+  useEffect(() => {
+    const boardWidth = 420;
+    const gap = 50;
+    const chainWidth = boards.length * boardWidth + (boards.length - 1) * gap;
+    const availableWidth = window.innerWidth - 32; // subtract some margin
+    const fitZoom = availableWidth / chainWidth;
+    // If the chain fits at 1x, use 1; otherwise, use the fitZoom value.
+    if (fitZoom < 1) {
+      setZoom(fitZoom);
+    } else {
+      setZoom(1);
+    }
+  }, [boards]);
 
   return (
     <div className="min-h-screen bg-gray-100 relative">
@@ -132,10 +144,10 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Main Content - Render all whiteboards side by side */}
+      {/* Main Content - Render whiteboards side by side with connectors */}
       <div className="overflow-auto min-h-[calc(100vh-4rem)]">
         <main
-          className="max-w-7xl mx-auto p-8 flex items-center mt-12 relative min-h-[calc(100vh-8rem)] gap-[50px]"
+          className="max-w-7xl mx-auto p-8 flex justify-center items-center mt-12 relative min-h-[calc(100vh-8rem)] gap-[50px]"
           style={{
             transform: `scale(${zoom})`,
             transformOrigin: 'center top',
@@ -144,7 +156,7 @@ export default function Home() {
         >
           {boards.map((board, index) => (
             <div key={board.id} className="relative">
-              {/* Render a connector for boards after the first */}
+              {/* For boards after the first, render a connector line */}
               {index > 0 && (
                 <div
                   className="absolute"

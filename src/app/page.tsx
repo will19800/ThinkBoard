@@ -1,12 +1,18 @@
 "use client";
 
-import { SetStateAction, useState } from 'react';
+"use client";
+
+import React, { SetStateAction, useState, useEffect } from 'react';
 import { ZoomIn, ZoomOut, Lightbulb } from 'lucide-react';
 
-export default function Home() {
+interface WhiteboardProps {
+  id: number;
+  onAsk: () => void;
+}
+
+function Whiteboard({ id, onAsk }: WhiteboardProps) {
   const [userInput, setUserInput] = useState('');
   const [answer, setAnswer] = useState('');
-  const [zoom, setZoom] = useState(1);
   const [conversationHistory, setConversationHistory] = useState<string[]>([]); // List to track conversation
 
   // Start of every Chat GPT message
@@ -73,18 +79,33 @@ export default function Home() {
   };
 
   const handleZoom = (direction: 'in' | 'out') => {
-    setZoom(prev => {
+    setZoom((prev) => {
       const newZoom = direction === 'in' ? prev + 0.1 : prev - 0.1;
-      return Math.min(Math.max(newZoom, 0.5), 2); // Limit zoom between 0.5x and 2x
+      return Math.min(Math.max(newZoom, 0.2), 2); // Allow manual zoom between 0.2x and 2x
     });
   };
+
+  // Auto-fit effect: recalculate zoom to ensure the entire chain fits
+  useEffect(() => {
+    const boardWidth = 420;
+    const gap = 50;
+    const chainWidth = boards.length * boardWidth + (boards.length - 1) * gap;
+    const availableWidth = window.innerWidth - 32; // subtract some margin
+    const fitZoom = availableWidth / chainWidth;
+    // If the chain fits at 1x, use 1; otherwise, use the fitZoom value.
+    if (fitZoom < 1) {
+      setZoom(fitZoom);
+    } else {
+      setZoom(1);
+    }
+  }, [boards]);
 
   return (
     <div className="min-h-screen bg-gray-100 relative">
       {/* Grid Background Pattern */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThlYyIgb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')]" />
 
-      {/* Header - Fixed */}
+      {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm relative z-20">
         <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
           <div className="flex items-center space-x-6">
@@ -136,49 +157,37 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Main Content - Zoomable */}
+      {/* Main Content - Render whiteboards side by side with connectors */}
       <div className="overflow-auto min-h-[calc(100vh-4rem)]">
         <main
-          className="max-w-7xl mx-auto p-8 flex justify-center items-center gap-24 mt-12 relative min-h-[calc(100vh-8rem)]"
+          className="max-w-7xl mx-auto p-8 flex justify-center items-center mt-12 relative min-h-[calc(100vh-8rem)] gap-[50px]"
           style={{
             transform: `scale(${zoom})`,
             transformOrigin: 'center top',
             transition: 'transform 0.2s ease-out'
           }}
         >
-          {/* Connection Line */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-[2px] bg-blue-400" />
-
-          {/* Question Card */}
-          <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">
-              What do you want to learn today?
-            </h2>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                value={userInput}
-                onChange={handleInputChange}
-                placeholder="Ask a Question"
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 placeholder-gray-400"
-              />
-              <button
-                type="submit"
-                className="mt-4 w-full bg-gradient-to-r from-indigo-600 to-blue-500 text-white py-3 rounded-lg hover:from-indigo-700 hover:to-blue-600 transition-colors font-medium"
-              >
-                Ask
-              </button>
-            </form>
-          </div>
-
-          {/* Answer Card */}
-          <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
-            <p className="text-gray-600">
-              {answer || '(info about the topic that the user requested)'}
-            </p>
-          </div>
+          {boards.map((board, index) => (
+            <div key={board.id} className="relative">
+              {/* For boards after the first, render a connector line */}
+              {index > 0 && (
+                <div
+                  className="absolute"
+                  style={{
+                    width: '50px',
+                    height: '1px',
+                    backgroundColor: '#3B82F6',
+                    left: `-${50}px`,
+                    top: '50%',
+                    transform: 'translateY(-50%)'
+                  }}
+                />
+              )}
+              <Whiteboard id={board.id} onAsk={addBoard} />
+            </div>
+          ))}
         </main>
       </div>
     </div>
   );
-};
+}

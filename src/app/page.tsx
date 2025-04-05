@@ -7,19 +7,19 @@ export default function Home() {
   const [userInput, setUserInput] = useState('');
   const [answer, setAnswer] = useState('');
   const [zoom, setZoom] = useState(1);
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]); // List to track conversation
 
   // Start of every Chat GPT message
-  const context : String = "You are a supportive teacher helping a middle school student learn STEM. If the student asks a general or conceptual question, offer 3 labeled branches (e.g., theory, real-life, what-if), You are a teacher giving responses to a middle schooler asking tutoring questions to better understand difficult STEM subjects, give three branches of thought to each query and ask which branch the student would like to continue. If the student asks a specific or problem-solving question, give one clear path with step-by-step guidance. Use simple language, real-world examples, and check understanding. Encourage curiosity, praise effort, and make learning fun."
+  const context : String = "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. If the student asks a general, conceptual, or exploratory question (like “What is electricity?”), respond with three clearly labeled branches (e.g., Theory, Real-life Example, What-if Scenario), each as a brief summary to spark curiosity, and ask “Which branch would you like to explore?” without going into detail until the student chooses. Make sure to take into account the context. If the student asks a specific or problem-solving question (like “How do I solve this equation?”), provide one clear, step-by-step explanation using simple language, real-world examples, checks for understanding, and positive encouragement to build confidence. Don’t ask “Which branch would you like to explore?,” instead ask a guidiing question related to your response that provokes insight.  Throughout all interactions, keep a friendly, supportive tone, use short headers when offering branches, treat each selected branch as its own context, and never mix general and specific response styles in the same reply. Make sure to take into account the context. "
 
   const getConversationHistoryString = (): string => {
     return conversationHistory.join(" "); // Joins the conversation history with a space between each message
   };
 
-  const [conversationHistory, setConversationHistory] = useState<string[]>([]); // List to track conversation
-
     // Handle user input change
     const handleInputChange = (e: { target: { value: SetStateAction<string>; }; }) => {
       setUserInput(e.target.value);
+      // setConversationHistory([])
     };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,12 +59,6 @@ export default function Home() {
         },
         body: JSON.stringify({
           prompt: prompt,
-          customMessages: {
-            tone: 'friendly',
-            formality: 'formal',
-            knowledgeLevel: 'middle school',
-            length: 'short'
-          },
         }),
       });
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { ZoomIn, ZoomOut, Lightbulb } from "lucide-react";
+import { useRouter } from 'next/navigation'
 
 // -------------------------------------------------------------------
 // Board Data Model
@@ -24,6 +25,8 @@ interface WhiteboardProps {
   // If provided, this board is inactive and displays finalized data.
   finalQuestion?: string;
   answer?: string;
+  // Add selectedTutor prop
+  selectedTutor: string;
 }
 
 // -------------------------------------------------------------------
@@ -38,17 +41,26 @@ function Whiteboard({
   onBranch,
   finalQuestion,
   answer,
+  selectedTutor,
 }: WhiteboardProps) {
   // For active boards, maintain input state and conversation history.
   const [userInput, setUserInput] = useState("");
   const [conversationHistory, setConversationHistory] = useState<string[]>([]);
   
-  // Context for GPT prompt (unchanged from your provided backend code).
-  const context =
-    "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. If the student asks a general, conceptual, or exploratory question (like “What is electricity?”), respond with three labeled branches (e.g., Theory, Real-life Example, What-if Scenario) with a brief summary to spark curiosity, and ask “Which branch would you like to explore?” without going into detail until the student chooses. Make sure to take into account the context. If the student asks a specific or problem-solving question (like “How do I solve this equation?”), provide one clear, step-by-step explanation using simple language, real-world examples, checks for understanding, and positive encouragement to build confidence. Don’t ask “Which branch would you like to explore?,” instead ask a guiding question related to your response that provokes insight. Throughout all interactions, keep a friendly, supportive tone, use short headers when offering branches, treat each selected branch as its own context, and never mix general and specific response styles in the same reply. Make sure to take into account the context.";
-  
-  // Utility: join the conversation history.
-  // const getConversationHistoryString = () => conversationHistory.join(" ");
+
+  const getContext = () => {
+    switch(selectedTutor) {
+      case 'elementary':
+        return "You are a warm, encouraging STEM tutor for elementary school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. Don't use technical terms. Make it very simplistic and natural for a kid. Explain concepts in a way that children aged 5-10 can understand. If the student asks a general, conceptual, or exploratory question (like `What is electricity?`), respond with three labeled branches with a brief summary to spark curiosity. Ask 'Which branch would you like to explore?' without going into detail until the student chooses. If the student asks a specific or problem-solving question (like 'How do I solve this equation?'), provide one clear, step-by-step explanation using simple language, real-world examples, and positive encouragement to build confidence. Don't ask 'Which branch would you like to explore?' Instead, ask a guiding question that helps the student gain insight. Keep a friendly, supportive tone throughout, and use short headers when offering branches. Treat each selected branch as its own context and avoid mixing general and specific response styles.";
+      case 'high':
+        return "You are a warm, encouraging STEM tutor for high school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. Explain concepts in a way that students aged 14-18 can understand. If the student asks a general, conceptual, or exploratory question (like `What is electricity?`), respond with three labeled branches with a brief summary to spark curiosity. Ask 'Which branch would you like to explore?' without going into detail until the student chooses. If the student asks a specific or problem-solving question (like 'How do I solve this equation?'), provide one clear, step-by-step explanation using simple language, real-world examples, and positive encouragement to build confidence. Don't ask 'Which branch would you like to explore?' Instead, ask a guiding question that helps the student gain insight. Keep a friendly, supportive tone throughout, and use short headers when offering branches. Treat each selected branch as its own context and avoid mixing general and specific response styles.";
+      case 'college':
+        return "You are a warm, encouraging STEM tutor for college, master's, and PhD students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. Explain concepts in a way that advanced students can understand, making it in-depth. If the student asks a general, conceptual, or exploratory question (like `What is electricity?`), respond with three labeled branches with a brief summary to spark curiosity. Ask 'Which branch would you like to explore?' without going into detail until the student chooses. If the student asks a specific or problem-solving question (like 'How do I solve this equation?'), provide one clear, step-by-step explanation with real-world examples and positive encouragement to build confidence. Don't ask 'Which branch would you like to explore?' Instead, ask a guiding question that provokes insight. Maintain a friendly, supportive tone and use short headers when offering branches. Treat each selected branch as its own context, and never mix general and specific response styles.";
+      case 'middle':
+      default:
+        return "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. Explain concepts in a way that students aged 10-14 can understand. If the student asks a general, conceptual, or exploratory question (like `What is electricity?`), respond with three labeled branches with a brief summary to spark curiosity. Ask 'Which branch would you like to explore?' without going into detail until the student chooses. If the student asks a specific or problem-solving question (like 'How do I solve this equation?'), provide one clear, step-by-step explanation with real-world examples and positive encouragement to build confidence. Don't ask 'Which branch would you like to explore?' Instead, ask a guiding question that helps the student gain insight. Keep a friendly, supportive tone, and use short headers when offering branches. Treat each selected branch as its own context and avoid mixing general and specific response styles.";
+    }
+  };
 
   // Handle input changes.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,9 +77,12 @@ function Whiteboard({
     setConversationHistory(newHistory);
     const conversationHistoryString = newHistory.join(" ");
     
+    // Get the appropriate context based on the selected tutor
+    const contextPrompt = getContext();
+    
     // Build the prompt.
     const prompt =
-      context +
+      contextPrompt +
       "\n\nThis is all the previous context from your lesson with this student:\n\n" +
       conversationHistoryString +
       "\n\nThis is the question the student is asking now: " +
@@ -105,16 +120,22 @@ function Whiteboard({
   // If finalized data exists, render an inactive board.
   if (finalQuestion !== undefined) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
-        <div className="mb-4">
-          <span className="font-bold">Question: </span>
-          <span className="text-gray-800">{finalQuestion}</span>
-        </div>
-        <div>
-          <span className="font-bold">Answer: </span>
-          <span className="text-gray-600">
-            {answer || "(info about the topic that the user requested)"}
-          </span>
+      <div className="flex-col">
+          <img
+            src="/alpaca.png"
+            alt="Custom"
+            className="ml-auto"
+            height="70"
+            width="70"
+          />
+        <div className="bg-white relative rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
+          <h2 className="text-2xl font-bold mb-6 text-black">{finalQuestion}</h2>
+          <div>
+            <span className="text-gray-600">
+              {answer || "(info about the topic that the user requested)"}
+            </span>
+          </div>
+          {/* Custom image in bottom right. Change the src to your custom image URL */}
         </div>
       </div>
     );
@@ -151,12 +172,31 @@ function Whiteboard({
 // The active board in each column is the bottom-most one.
 // For the rightmost column, the active board uses Ask; for others, Branch.
 export default function Home() {
+  const router = useRouter();
   const [zoom, setZoom] = useState(1);
   // Grid: an array of columns, each column is an array of Board objects.
   const [columns, setColumns] = useState<Board[][]>([[{ id: 1 }]]);
   const nextId = useRef(2);
   // Control auto-zoom recalculation (only triggered by Ask actions).
   const [autoZoomEnabled, setAutoZoomEnabled] = useState(true);
+
+  // Handle Tutor chosen
+  const [selectedTutor, setSelectedTutor] = useState('middle'); // Default to middle school
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  // Fixed tutorOptions array with proper ID to label mapping
+  const tutorOptions = [
+    { id: 'elementary', label: 'Elementary School' },
+    { id: 'middle', label: 'Middle School' },
+    { id: 'high', label: 'High School' },
+    { id: 'college', label: 'College' }
+  ];
+  
+  // Simplified handler that just uses the ID
+  const handleTutorSelect = (id: React.SetStateAction<string>) => {
+    setSelectedTutor(id);
+    setDropdownOpen(false);
+  };
 
   // Handle Ask (rightmost column).
   // This finalizes the active board's Q&A, inserts an inactive board above it in the same column, and adds a new column.
@@ -242,7 +282,47 @@ export default function Home() {
                 <div className="text-xs text-gray-500 -mt-1">AI-Powered Learning</div>
               </div>
             </div>
-            <button className="text-gray-600 hover:text-blue-500 transition-colors">
+            
+            {/* Dropdown Navigation */}
+            <div className="relative">
+              <button 
+                className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition-colors"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <span>
+                  {selectedTutor ? tutorOptions.find(option => option.id === selectedTutor)?.label : 'Select Tutor'}
+                </span>
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className={`h-4 w-4 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {dropdownOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 border border-gray-100">
+                  {tutorOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      className={`block w-full text-left px-4 py-2 text-sm ${
+                        selectedTutor === option.id
+                          ? 'bg-blue-50 text-blue-600 font-medium'
+                          : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                      }`}
+                      onClick={() => handleTutorSelect(option.id)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <button className="text-gray-600 hover:text-blue-500 transition-colors" onClick={() => router.push('/gallery')}> 
               Load board
             </button>
             <button className="text-gray-600 hover:text-blue-500 transition-colors">
@@ -307,6 +387,7 @@ export default function Home() {
                       showBranch={showBranch}
                       onAsk={handleAsk}
                       onBranch={(finalQ, ans) => handleBranch(finalQ, ans, colIndex)}
+                      selectedTutor={selectedTutor}
                     />
                   </div>
                 );

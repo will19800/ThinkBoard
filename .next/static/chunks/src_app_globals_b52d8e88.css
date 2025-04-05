@@ -14,7 +14,6 @@
     --color-gray-400: oklch(70.7% .022 261.325);
     --color-gray-500: oklch(55.1% .027 264.364);
     --color-gray-600: oklch(44.6% .03 256.802);
-    --color-gray-700: oklch(37.3% .034 259.733);
     --color-gray-800: oklch(27.8% .033 256.848);
     --color-black: #000;
     --color-white: #fff;
@@ -262,10 +261,6 @@
     margin-top: calc(var(--spacing) * 4);
   }
 
-  .mt-8 {
-    margin-top: calc(var(--spacing) * 8);
-  }
-
   .mt-12 {
     margin-top: calc(var(--spacing) * 12);
   }
@@ -282,20 +277,12 @@
     margin-left: calc(var(--spacing) * 3);
   }
 
-  .ml-8 {
-    margin-left: calc(var(--spacing) * 8);
-  }
-
   .flex {
     display: flex;
   }
 
   .grid {
     display: grid;
-  }
-
-  .h-5 {
-    height: calc(var(--spacing) * 5);
   }
 
   .h-6 {
@@ -316,10 +303,6 @@
 
   .min-h-screen {
     min-height: 100vh;
-  }
-
-  .w-5 {
-    width: calc(var(--spacing) * 5);
   }
 
   .w-6 {
@@ -358,10 +341,6 @@
     justify-content: space-between;
   }
 
-  .justify-center {
-    justify-content: center;
-  }
-
   .justify-start {
     justify-content: flex-start;
   }
@@ -376,12 +355,6 @@
 
   .gap-\[50px\] {
     gap: 50px;
-  }
-
-  :where(.space-y-8 > :not(:last-child)) {
-    --tw-space-y-reverse: 0;
-    margin-block-start: calc(calc(var(--spacing) * 8) * var(--tw-space-y-reverse));
-    margin-block-end: calc(calc(var(--spacing) * 8) * calc(1 - var(--tw-space-y-reverse)));
   }
 
   :where(.space-x-4 > :not(:last-child)) {
@@ -539,10 +512,6 @@
 
   .text-gray-600 {
     color: var(--color-gray-600);
-  }
-
-  .text-gray-700 {
-    color: var(--color-gray-700);
   }
 
   .text-gray-800 {
@@ -713,12 +682,6 @@ body {
   initial-value: skewY(0);
 }
 
-@property --tw-space-y-reverse {
-  syntax: "*";
-  inherits: false;
-  initial-value: 0;
-}
-
 @property --tw-space-x-reverse {
   syntax: "*";
   inherits: false;
@@ -884,7 +847,6 @@ body {
       --tw-rotate-z: rotateZ(0);
       --tw-skew-x: skewX(0);
       --tw-skew-y: skewY(0);
-      --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
       --tw-border-style: solid;
       --tw-gradient-position: initial;

@@ -5,7 +5,6 @@ import { ZoomIn, ZoomOut, Lightbulb } from "lucide-react";
 
 // -------------------------------------------------------------------
 // Board Data Model
-// Each board may store a finalized question and answer.
 interface Board {
   id: number;
   finalQuestion?: string;
@@ -18,18 +17,14 @@ interface WhiteboardProps {
   id: number;
   showAsk: boolean;
   showBranch: boolean;
-  // Callbacks: both receive the finalized question and answer from GPT.
   onAsk: (finalQuestion: string, answer: string) => void;
   onBranch: (finalQuestion: string, answer: string) => void;
-  // If provided, this board is inactive and displays finalized data.
   finalQuestion?: string;
   answer?: string;
 }
 
 // -------------------------------------------------------------------
 // Whiteboard Component
-// For active boards, we call the GPT API to fetch an answer.
-// For inactive boards (where finalQuestion is set), we simply display the Q&A.
 function Whiteboard({
   id,
   showAsk,
@@ -39,43 +34,30 @@ function Whiteboard({
   finalQuestion,
   answer,
 }: WhiteboardProps) {
-  // For active boards, maintain input state and conversation history.
   const [userInput, setUserInput] = useState("");
   const [conversationHistory, setConversationHistory] = useState<string[]>([]);
-  
-  // Context for GPT prompt (unchanged from your provided backend code).
+
   const context =
     "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. If the student asks a general, conceptual, or exploratory question (like “What is electricity?”), respond with three labeled branches (e.g., Theory, Real-life Example, What-if Scenario) with a brief summary to spark curiosity, and ask “Which branch would you like to explore?” without going into detail until the student chooses. Make sure to take into account the context. If the student asks a specific or problem-solving question (like “How do I solve this equation?”), provide one clear, step-by-step explanation using simple language, real-world examples, checks for understanding, and positive encouragement to build confidence. Don’t ask “Which branch would you like to explore?,” instead ask a guiding question related to your response that provokes insight. Throughout all interactions, keep a friendly, supportive tone, use short headers when offering branches, treat each selected branch as its own context, and never mix general and specific response styles in the same reply. Make sure to take into account the context.";
-  
-  // Utility: join the conversation history.
-  // const getConversationHistoryString = () => conversationHistory.join(" ");
 
-  // Handle input changes.
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
   };
 
-  // For active boards, on form submission, call the GPT backend.
   const handleSubmitWithGPT = async (e: React.FormEvent) => {
     e.preventDefault();
     if (userInput.trim() === "") return;
-
-    // Update conversation history.
     const newHistory = [...conversationHistory, userInput];
     setConversationHistory(newHistory);
     const conversationHistoryString = newHistory.join(" ");
-    
-    // Build the prompt.
     const prompt =
       context +
       "\n\nThis is all the previous context from your lesson with this student:\n\n" +
       conversationHistoryString +
       "\n\nThis is the question the student is asking now: " +
       userInput;
-    
     const currentQuestion = userInput;
     setUserInput("");
-    console.log(prompt);
 
     try {
       const response = await fetch("http://localhost:3001/api/gpt", {
@@ -85,8 +67,6 @@ function Whiteboard({
       });
       const data = await response.json();
       const aiAnswer = data.reply;
-      
-      // Depending on which button is active, call the corresponding callback.
       if (showAsk) {
         onAsk(currentQuestion, aiAnswer);
       } else if (showBranch) {
@@ -102,16 +82,11 @@ function Whiteboard({
     }
   };
 
-  // If finalized data exists, render an inactive board.
   if (finalQuestion !== undefined) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100">
-        <div className="mb-4">
-          <span className="font-bold">Question: </span>
-          <span className="text-gray-800">{finalQuestion}</span>
-        </div>
+        <h2 className="text-2xl font-bold mb-6 text-black">{finalQuestion}</h2>
         <div>
-          <span className="font-bold">Answer: </span>
           <span className="text-gray-600">
             {answer || "(info about the topic that the user requested)"}
           </span>
@@ -120,11 +95,12 @@ function Whiteboard({
     );
   }
 
-  // Otherwise, render an active board with an input form.
   return (
     <div className="bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        What do you want to learn today?
+        {showBranch
+          ? "Do you have further questions?"
+          : "What do you want to learn today?"}
       </h2>
       <form onSubmit={handleSubmitWithGPT}>
         <input
@@ -147,50 +123,55 @@ function Whiteboard({
 
 // -------------------------------------------------------------------
 // Home Component
-// The grid is represented as an array of columns, where each column is an array of boards.
-// The active board in each column is the bottom-most one.
-// For the rightmost column, the active board uses Ask; for others, Branch.
 export default function Home() {
   const [zoom, setZoom] = useState(1);
-  // Grid: an array of columns, each column is an array of Board objects.
   const [columns, setColumns] = useState<Board[][]>([[{ id: 1 }]]);
   const nextId = useRef(2);
-  // Control auto-zoom recalculation (only triggered by Ask actions).
   const [autoZoomEnabled, setAutoZoomEnabled] = useState(true);
 
   // Handle Ask (rightmost column).
-  // This finalizes the active board's Q&A, inserts an inactive board above it in the same column, and adds a new column.
   const handleAsk = (finalQuestion: string, answer: string) => {
     setAutoZoomEnabled(true);
     setColumns((prev) => {
       const lastColIndex = prev.length - 1;
       const lastCol = prev[lastColIndex];
-      // Replace the active board (last board) with two boards:
-      // - The finalized board (inactive) that shows the Q&A.
-      // - A new active board (empty) for further input.
-      const finalizedBoard: Board = { id: nextId.current++, finalQuestion, answer };
+      const finalizedBoard: Board = {
+        id: nextId.current++,
+        finalQuestion,
+        answer,
+      };
       const newActiveBoard: Board = { id: nextId.current++ };
       const newLastCol = [
         ...lastCol.slice(0, lastCol.length - 1),
         finalizedBoard,
         newActiveBoard,
       ];
-      // Also add a new column (to the right) with a new active board.
       const newColumn: Board[] = [{ id: nextId.current++ }];
       return [...prev.slice(0, lastColIndex), newLastCol, newColumn];
     });
   };
 
   // Handle Branch (non-rightmost columns).
-  // This finalizes the active board's Q&A and inserts a new inactive board above it in the same column.
-  const handleBranch = (finalQuestion: string, answer: string, colIndex: number) => {
+  const handleBranch = (
+    finalQuestion: string,
+    answer: string,
+    colIndex: number
+  ) => {
     setAutoZoomEnabled(false);
     setColumns((prev) => {
       const newColumns = [...prev];
       const col = newColumns[colIndex];
-      const finalizedBoard: Board = { id: nextId.current++, finalQuestion, answer };
+      const finalizedBoard: Board = {
+        id: nextId.current++,
+        finalQuestion,
+        answer,
+      };
       const newActiveBoard: Board = { id: nextId.current++ };
-      newColumns[colIndex] = [...col.slice(0, col.length - 1), finalizedBoard, newActiveBoard];
+      newColumns[colIndex] = [
+        ...col.slice(0, col.length - 1),
+        finalizedBoard,
+        newActiveBoard,
+      ];
       return newColumns;
     });
   };
@@ -202,21 +183,27 @@ export default function Home() {
     });
   };
 
-  // Auto-fit zoom recalculation only when autoZoomEnabled is true (i.e. when Ask is pressed).
+  // Auto-fit zoom: only adjust zoom if the top row chain is out of view.
   useEffect(() => {
     if (autoZoomEnabled) {
       const boardWidth = 420;
       const boardHeight = 500;
       const gap = 50;
-      const totalWidth = columns.length * boardWidth + (columns.length - 1) * gap;
-      const columnHeights = columns.map(
-        (col) => col.length * boardHeight + (col.length - 1) * gap
-      );
-      const totalHeight = Math.max(...columnHeights);
+      // Top row chain: one board per column.
+      const numColumns = columns.length;
+      const topRowWidth = numColumns * boardWidth + (numColumns - 1) * gap;
       const availableWidth = window.innerWidth - 32;
       const availableHeight = window.innerHeight - 32;
-      const fitZoom = Math.min(availableWidth / totalWidth, availableHeight / totalHeight);
-      setZoom(fitZoom < 1 ? fitZoom : 1);
+      let newZoom = zoom;
+      // Adjust if the top row chain width is out of view.
+      if (topRowWidth * zoom > availableWidth) {
+        newZoom = availableWidth / topRowWidth;
+      }
+      // Also ensure the top row height fits.
+      if (boardHeight * newZoom > availableHeight) {
+        newZoom = availableHeight / boardHeight;
+      }
+      setZoom(newZoom);
       setAutoZoomEnabled(false);
     }
   }, [columns, autoZoomEnabled]);
@@ -291,11 +278,8 @@ export default function Home() {
           {columns.map((column, colIndex) => (
             <div key={colIndex} className="flex flex-col gap-[50px]">
               {column.map((board, rowIndex) => {
-                // The active board is the last board in each column.
                 const isActive = rowIndex === column.length - 1;
-                // For the rightmost column, the active board uses Ask.
                 const showAsk = colIndex === columns.length - 1 && isActive;
-                // For all other columns, the active board uses Branch.
                 const showBranch = isActive && !(colIndex === columns.length - 1 && isActive);
                 return (
                   <div key={board.id}>

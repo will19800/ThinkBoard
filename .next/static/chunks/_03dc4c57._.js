@@ -20,37 +20,26 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 // -------------------------------------------------------------------
 // Whiteboard Component
-// For active boards, we call the GPT API to fetch an answer.
-// For inactive boards (where finalQuestion is set), we simply display the Q&A.
 function Whiteboard({ id, showAsk, showBranch, onAsk, onBranch, finalQuestion, answer }) {
     _s();
-    // For active boards, maintain input state and conversation history.
     const [userInput, setUserInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [conversationHistory, setConversationHistory] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
-    // Context for GPT prompt (unchanged from your provided backend code).
     const context = "You are a warm, encouraging STEM tutor for middle school students, helping them understand science, technology, engineering, and math through a whiteboard app that supports branching conversations. If the student asks a general, conceptual, or exploratory question (like “What is electricity?”), respond with three labeled branches (e.g., Theory, Real-life Example, What-if Scenario) with a brief summary to spark curiosity, and ask “Which branch would you like to explore?” without going into detail until the student chooses. Make sure to take into account the context. If the student asks a specific or problem-solving question (like “How do I solve this equation?”), provide one clear, step-by-step explanation using simple language, real-world examples, checks for understanding, and positive encouragement to build confidence. Don’t ask “Which branch would you like to explore?,” instead ask a guiding question related to your response that provokes insight. Throughout all interactions, keep a friendly, supportive tone, use short headers when offering branches, treat each selected branch as its own context, and never mix general and specific response styles in the same reply. Make sure to take into account the context.";
-    // Utility: join the conversation history.
-    // const getConversationHistoryString = () => conversationHistory.join(" ");
-    // Handle input changes.
     const handleInputChange = (e)=>{
         setUserInput(e.target.value);
     };
-    // For active boards, on form submission, call the GPT backend.
     const handleSubmitWithGPT = async (e)=>{
         e.preventDefault();
         if (userInput.trim() === "") return;
-        // Update conversation history.
         const newHistory = [
             ...conversationHistory,
             userInput
         ];
         setConversationHistory(newHistory);
         const conversationHistoryString = newHistory.join(" ");
-        // Build the prompt.
         const prompt = context + "\n\nThis is all the previous context from your lesson with this student:\n\n" + conversationHistoryString + "\n\nThis is the question the student is asking now: " + userInput;
         const currentQuestion = userInput;
         setUserInput("");
-        console.log(prompt);
         try {
             const response = await fetch("http://localhost:3001/api/gpt", {
                 method: "POST",
@@ -63,7 +52,6 @@ function Whiteboard({ id, showAsk, showBranch, onAsk, onBranch, finalQuestion, a
             });
             const data = await response.json();
             const aiAnswer = data.reply;
-            // Depending on which button is active, call the corresponding callback.
             if (showAsk) {
                 onAsk(currentQuestion, aiAnswer);
             } else if (showBranch) {
@@ -78,77 +66,48 @@ function Whiteboard({ id, showAsk, showBranch, onAsk, onBranch, finalQuestion, a
             }
         }
     };
-    // If finalized data exists, render an inactive board.
     if (finalQuestion !== undefined) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "bg-white rounded-xl shadow-lg p-8 w-[420px] min-h-[280px] border border-gray-100",
             children: [
-                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    className: "mb-4",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "font-bold",
-                            children: "Question: "
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 110,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "text-gray-800",
-                            children: finalQuestion
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 111,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                    className: "text-2xl font-bold mb-6 text-black",
+                    children: finalQuestion
+                }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 109,
+                    lineNumber: 88,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "font-bold",
-                            children: "Answer: "
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 114,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "text-gray-600",
-                            children: answer || "(info about the topic that the user requested)"
-                        }, void 0, false, {
-                            fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 115,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "text-gray-600",
+                        children: answer || "(info about the topic that the user requested)"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/page.tsx",
+                        lineNumber: 90,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 113,
+                    lineNumber: 89,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/page.tsx",
-            lineNumber: 108,
+            lineNumber: 87,
             columnNumber: 7
         }, this);
     }
-    // Otherwise, render an active board with an input form.
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "bg-white rounded-xl shadow-lg p-8 w-[420px] border border-gray-100",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                 className: "text-2xl font-bold mb-6 text-gray-800",
-                children: "What do you want to learn today?"
+                children: showBranch ? "Do you have further questions?" : "What do you want to learn today?"
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 126,
+                lineNumber: 100,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -162,7 +121,7 @@ function Whiteboard({ id, showAsk, showBranch, onAsk, onBranch, finalQuestion, a
                         className: "w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 placeholder-gray-400 text-black"
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 130,
+                        lineNumber: 106,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -171,19 +130,19 @@ function Whiteboard({ id, showAsk, showBranch, onAsk, onBranch, finalQuestion, a
                         children: showAsk ? "Ask" : showBranch ? "Branch" : ""
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 137,
+                        lineNumber: 113,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 129,
+                lineNumber: 105,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 125,
+        lineNumber: 99,
         columnNumber: 5
     }, this);
 }
@@ -192,7 +151,6 @@ _c = Whiteboard;
 function Home() {
     _s1();
     const [zoom, setZoom] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(1);
-    // Grid: an array of columns, each column is an array of Board objects.
     const [columns, setColumns] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([
         [
             {
@@ -201,18 +159,13 @@ function Home() {
         ]
     ]);
     const nextId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(2);
-    // Control auto-zoom recalculation (only triggered by Ask actions).
     const [autoZoomEnabled, setAutoZoomEnabled] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     // Handle Ask (rightmost column).
-    // This finalizes the active board's Q&A, inserts an inactive board above it in the same column, and adds a new column.
     const handleAsk = (finalQuestion, answer)=>{
         setAutoZoomEnabled(true);
         setColumns((prev)=>{
             const lastColIndex = prev.length - 1;
             const lastCol = prev[lastColIndex];
-            // Replace the active board (last board) with two boards:
-            // - The finalized board (inactive) that shows the Q&A.
-            // - A new active board (empty) for further input.
             const finalizedBoard = {
                 id: nextId.current++,
                 finalQuestion,
@@ -226,7 +179,6 @@ function Home() {
                 finalizedBoard,
                 newActiveBoard
             ];
-            // Also add a new column (to the right) with a new active board.
             const newColumn = [
                 {
                     id: nextId.current++
@@ -240,7 +192,6 @@ function Home() {
         });
     };
     // Handle Branch (non-rightmost columns).
-    // This finalizes the active board's Q&A and inserts a new inactive board above it in the same column.
     const handleBranch = (finalQuestion, answer, colIndex)=>{
         setAutoZoomEnabled(false);
         setColumns((prev)=>{
@@ -270,22 +221,28 @@ function Home() {
             return Math.min(Math.max(newZoom, 0.2), 2);
         });
     };
-    // Auto-fit zoom recalculation only when autoZoomEnabled is true (i.e. when Ask is pressed).
+    // Auto-fit zoom: only adjust zoom if the top row chain is out of view.
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
             if (autoZoomEnabled) {
                 const boardWidth = 420;
                 const boardHeight = 500;
                 const gap = 50;
-                const totalWidth = columns.length * boardWidth + (columns.length - 1) * gap;
-                const columnHeights = columns.map({
-                    "Home.useEffect.columnHeights": (col)=>col.length * boardHeight + (col.length - 1) * gap
-                }["Home.useEffect.columnHeights"]);
-                const totalHeight = Math.max(...columnHeights);
+                // Top row chain: one board per column.
+                const numColumns = columns.length;
+                const topRowWidth = numColumns * boardWidth + (numColumns - 1) * gap;
                 const availableWidth = window.innerWidth - 32;
                 const availableHeight = window.innerHeight - 32;
-                const fitZoom = Math.min(availableWidth / totalWidth, availableHeight / totalHeight);
-                setZoom(fitZoom < 1 ? fitZoom : 1);
+                let newZoom = zoom;
+                // Adjust if the top row chain width is out of view.
+                if (topRowWidth * zoom > availableWidth) {
+                    newZoom = availableWidth / topRowWidth;
+                }
+                // Also ensure the top row height fits.
+                if (boardHeight * newZoom > availableHeight) {
+                    newZoom = availableHeight / boardHeight;
+                }
+                setZoom(newZoom);
                 setAutoZoomEnabled(false);
             }
         }
@@ -300,7 +257,7 @@ function Home() {
                 className: "absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UyZThlYyIgb3BhY2l0eT0iMC40IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')]"
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 227,
+                lineNumber: 214,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
@@ -321,20 +278,20 @@ function Home() {
                                                     className: "w-6 h-6 text-white absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 235,
+                                                    lineNumber: 222,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$lightbulb$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Lightbulb$3e$__["Lightbulb"], {
                                                     className: "w-6 h-6 text-white group-hover:opacity-0 transition-opacity duration-300"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 236,
+                                                    lineNumber: 223,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 234,
+                                            lineNumber: 221,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -345,7 +302,7 @@ function Home() {
                                                     children: "ThinkBoard"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 239,
+                                                    lineNumber: 226,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -353,19 +310,19 @@ function Home() {
                                                     children: "AI-Powered Learning"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/page.tsx",
-                                                    lineNumber: 242,
+                                                    lineNumber: 229,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.tsx",
-                                            lineNumber: 238,
+                                            lineNumber: 225,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 233,
+                                    lineNumber: 220,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -373,7 +330,7 @@ function Home() {
                                     children: "Load board"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 245,
+                                    lineNumber: 232,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -381,13 +338,13 @@ function Home() {
                                     children: "Save board"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 248,
+                                    lineNumber: 235,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 232,
+                            lineNumber: 219,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -398,7 +355,7 @@ function Home() {
                                     children: "Log in"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 253,
+                                    lineNumber: 240,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -406,24 +363,24 @@ function Home() {
                                     children: "Sign up"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 256,
+                                    lineNumber: 243,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 252,
+                            lineNumber: 239,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 231,
+                    lineNumber: 218,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 230,
+                lineNumber: 217,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -437,12 +394,12 @@ function Home() {
                             className: "w-6 h-6 text-gray-600"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 270,
+                            lineNumber: 257,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 265,
+                        lineNumber: 252,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -453,18 +410,18 @@ function Home() {
                             className: "w-6 h-6 text-gray-600"
                         }, void 0, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 277,
+                            lineNumber: 264,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/src/app/page.tsx",
-                        lineNumber: 272,
+                        lineNumber: 259,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 264,
+                lineNumber: 251,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -479,11 +436,8 @@ function Home() {
                     children: columns.map((column, colIndex)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "flex flex-col gap-[50px]",
                             children: column.map((board, rowIndex)=>{
-                                // The active board is the last board in each column.
                                 const isActive = rowIndex === column.length - 1;
-                                // For the rightmost column, the active board uses Ask.
                                 const showAsk = colIndex === columns.length - 1 && isActive;
-                                // For all other columns, the active board uses Branch.
                                 const showBranch = isActive && !(colIndex === columns.length - 1 && isActive);
                                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Whiteboard, {
@@ -496,34 +450,34 @@ function Home() {
                                         onBranch: (finalQ, ans)=>handleBranch(finalQ, ans, colIndex)
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/page.tsx",
-                                        lineNumber: 302,
+                                        lineNumber: 286,
                                         columnNumber: 21
                                     }, this)
                                 }, board.id, false, {
                                     fileName: "[project]/src/app/page.tsx",
-                                    lineNumber: 301,
+                                    lineNumber: 285,
                                     columnNumber: 19
                                 }, this);
                             })
                         }, colIndex, false, {
                             fileName: "[project]/src/app/page.tsx",
-                            lineNumber: 292,
+                            lineNumber: 279,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
-                    lineNumber: 283,
+                    lineNumber: 270,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/page.tsx",
-                lineNumber: 282,
+                lineNumber: 269,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/page.tsx",
-        lineNumber: 225,
+        lineNumber: 212,
         columnNumber: 5
     }, this);
 }
